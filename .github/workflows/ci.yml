@@ -1,0 +1,43 @@
+name: FinFlow CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches :
+      - main
+
+jobs:
+  build:
+    name: Build ${{matrix.service}}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - auth-service
+          - user-service
+          - wallet-service
+          - payment-service
+          - notification-service
+          - gateway-service
+
+    defaults:
+      run:
+        working-directory: ${{matrix.service}}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Build and test
+        run: mvn -B clean verify

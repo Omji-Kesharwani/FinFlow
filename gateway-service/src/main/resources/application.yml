@@ -1,0 +1,68 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway-service
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+
+            - id: auth-service
+              uri: http://localhost:8081
+              predicates:
+                - Path=/api/auth/login,/api/auth/register
+
+            - id: user-service
+              uri: http://localhost:8082
+              predicates:
+                - Path=/api/users/**
+
+            - id: wallet-service
+              uri: http://localhost:8083
+              predicates:
+                - Path=/api/wallets/**
+
+            - id: payment-service
+              uri: http://localhost:8084
+              predicates:
+                - Path=/api/payments/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: paymentCircuitBreaker
+                    fallbackUri: "forward:/gateway-error"
+
+            - id: notification-service
+              uri: http://localhost:8085
+              predicates:
+                - Path=/api/notifications/**
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+
+jwt:
+  secret: c4b81f2a9e3d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      paymentCircuitBreaker:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 2

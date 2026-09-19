@@ -24,18 +24,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        System.out.println("JWT FILTER CALLED");
+//        System.out.println("JWT FILTER CALLED");
         String authHeader = request.getHeader("Authorization");
-        System.out.println("AUTH HEADER: " + authHeader);
+//        System.out.println("AUTH HEADER: " + authHeader);
         if(authHeader == null || !authHeader.startsWith("Bearer ")){
             filterChain.doFilter(request,response);
             return ;
         }
 
         String token = authHeader.substring(7);
+        System.out.println("Token : "+token);
         try{
             if(jwtService.isValid(token))
             {
+//                System.out.println("The token is valid ");
                 UUID userId = jwtService.extractUserId(token);
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(

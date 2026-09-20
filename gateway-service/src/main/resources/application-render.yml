@@ -1,0 +1,44 @@
+server:
+  port: 8080
+
+spring:
+  data:
+    redis:
+      host: red-dano00ek1f9s739cbjng:6379
+      port: 6379
+
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+
+            - id: auth-service
+              uri: https://finflow-auth-service-zp93.onrender.com
+              predicates:
+                - Path=/api/auth/login,/api/auth/register
+
+            - id: user-service
+              uri: https://finflow-user-service-b6tj.onrender.com
+              predicates:
+                - Path=/api/users/**
+
+            - id: wallet-service
+              uri: https://finflow-wallet-service-k201.onrender.com
+              predicates:
+                - Path=/api/wallets/**
+
+            - id: payment-service
+              uri: https://finflow-payment-service.onrender.com
+              predicates:
+                - Path=/api/payments/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: paymentCircuitBreaker
+                    fallbackUri: "forward:/gateway-error"
+
+            - id: notification-service
+              uri: https://finflow-notification-service.onrender.com
+              predicates:
+                - Path=/api/notifications/**

@@ -4,8 +4,7 @@ server:
 spring:
   data:
     redis:
-      host: redis://red-dano00ek1f9s739cbjng:6379
-      port: 6379
+      url: ${REDIS_URL}
 
   cloud:
     gateway:
